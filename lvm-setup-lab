@@ -1,0 +1,63 @@
+1. **Creating and Managing User Groups**
+2. **Installing Necessary Packages**
+3. **Setting Up Physical Volumes (PV)**
+4. **Creating Volume Groups (VG)**
+5. **Creating Logical Volumes (LV)**
+6. **Formatting and Mounting Filesystems**
+7. **Ensuring Persistence Across Reboots**
+8. **Permission Management**
+
+## Step-by-Step Guide
+
+# 1. Create a new user group `dba_users`:
+sudo groupadd dba_users
+
+2. Add the user bob to the dba_users group:
+
+sudo usermod -aG dba_users bob
+
+3. Install necessary LVM packages:
+
+sudo yum install lvm2
+
+4. Create a physical volume on /dev/vdb:
+
+sudo pvcreate /dev/vdb
+
+5. Create a volume group dba_storage from /dev/vdb and /dev/vdc:
+
+sudo vgcreate dba_storage /dev/vdb /dev/vdc
+
+6. Create a logical volume volume_1 using all available space in the dba_storage volume group:
+
+sudo lvcreate -n volume_1 -l 100%FREE dba_storage
+
+7. Format the logical volume volume_1 as XFS:
+
+sudo mkfs.xfs /dev/dba_storage/volume_1
+
+8. Mount the volume to /mnt/dba_storage:
+
+sudo mount /dev/dba_storage/volume_1 /mnt/dba_storage
+
+9. Ensure the mount point is persistent across reboots by adding it to /etc/fstab:
+
+Edit the /etc/fstab file and add the following line:
+
+/dev/dba_storage/volume_1  /mnt/dba_storage  xfs  defaults  0 0
+
+10. Reload systemd to apply the changes:
+
+sudo systemctl daemon-reload
+
+11. Verify the mount:
+
+df -h | grep /mnt/dba_storage
+
+12. Set proper permissions on the mount point:
+
+sudo chown -R root:dba_users /mnt/dba_storage
+
+sudo chmod -R 770 /mnt/dba_storage
+
+This setup provides a practical demonstration of disk management and logical volume creation on CentOS, along with ensuring that volumes are mounted correctly and persist through reboots. The project is aimed at providing foundational knowledge for system administrators and developers working with Linux-based environments.
